@@ -1,4 +1,6 @@
 # terraform/assaabloy-app-service.tf
+# ECS Service definition for Assa Abloy Application
+
 resource "aws_ecs_service" "app" {
   name            = "assaabloy-app-service"
   cluster         = aws_ecs_cluster.app_cluster.id
@@ -7,7 +9,7 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.private1.id, aws_subnet.private2.id]
+    subnets         = [data.aws_subnet.private1.id, data.aws_subnet.private2.id]
     security_groups = [aws_security_group.app_sg.id]
     assign_public_ip = false
   }
