@@ -1,3 +1,4 @@
+# .github/workflows/observability.yml
 name: Observability Stack Setup
 
 on:
@@ -38,8 +39,8 @@ jobs:
         run: |
           terraform import aws_ecs_service.prometheus assaabloy-app-cluster/prometheus-service
           terraform import aws_ecs_service.grafana assaabloy-app-cluster/grafana-service
-          terraform import aws_ecs_service.kafka assaabloy-app-cluster/kafka-service
           terraform import aws_ecs_service.cloudwatch_exporter assaabloy-app-cluster/cloudwatch-exporter-service
+          terraform import aws_ecs_service.assaabloy_app assaabloy-app-cluster/assaabloy-app-service
         working-directory: terraform
 
       - name: Terraform Plan
@@ -63,9 +64,9 @@ jobs:
           role-to-assume: arn:aws:iam::879696522469:role/GitHubActionsCICDRole
           aws-region: eu-north-1
 
-      - name: Refresh ECS Services (Prometheus, Grafana, Kafka, CloudWatch Exporter)
+      - name: Refresh ECS Services (Prometheus, Grafana, CloudWatch Exporter, App)
         run: |
           aws ecs update-service --cluster assaabloy-app-cluster --service prometheus-service --force-new-deployment
           aws ecs update-service --cluster assaabloy-app-cluster --service grafana-service --force-new-deployment
-          aws ecs update-service --cluster assaabloy-app-cluster --service kafka-service --force-new-deployment
           aws ecs update-service --cluster assaabloy-app-cluster --service cloudwatch-exporter-service --force-new-deployment
+          aws ecs update-service --cluster assaabloy-app-cluster --service assabloy-app-service --force-new-deployment
