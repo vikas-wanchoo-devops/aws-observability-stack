@@ -35,4 +35,8 @@ resource "aws_ecs_service" "grafana" {
   }
 
   load_balancer {
-    target_group_arn = "arn:aws:elasticloadbalancing:eu-north-1:87969
+    target_group_arn = "arn:aws:elasticloadbalancing:eu-north-1:879696522469:targetgroup/grafana-tg-ecs/78413275af16e77b"
+    container_name   = "grafana"
+    container_port   = 3000
+  }
+}
