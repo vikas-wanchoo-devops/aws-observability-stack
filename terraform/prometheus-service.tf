@@ -5,29 +5,12 @@ resource "aws_ecs_task_definition" "prometheus" {
   cpu                      = "512"
   memory                   = "1024"
 
-  container_definitions = jsonencode([
-    {
-      name      = "prometheus"
-      image     = "prom/prometheus:latest"
-      essential = true
-      portMappings = [
-        { containerPort = 9090, hostPort = 9090 }
-      ]
-      mountPoints = [
-        {
-          sourceVolume  = "prometheus-config"
-          containerPath = "/etc/prometheus"
-        }
-      ]
-    }
-  ])
-
-  volume {
-    name = "prometheus-config"
-    efs_volume_configuration {
-      file_system_id = aws_efs_file_system.prometheus.id
-    }
-  }
+  container_definitions = jsonencode([{
+    name      = "prometheus"
+    image     = "prom/prometheus:latest"
+    essential = true
+    portMappings = [{ containerPort = 9090, hostPort = 9090 }]
+  }])
 }
 
 resource "aws_ecs_service" "prometheus" {
@@ -38,8 +21,12 @@ resource "aws_ecs_service" "prometheus" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = ["subnet-xxxx"]   # replace with your VPC subnets
-    security_groups = ["sg-xxxx"]       # replace with your SG
+    subnets = [
+      "subnet-0d16d36a33d1c1f22",
+      "subnet-013e51f5fbc1318cb",
+      "subnet-0a4e24f116d3364f9"
+    ]
+    security_groups = ["sg-04df50a141a12d19a"]
     assign_public_ip = true
   }
 }
