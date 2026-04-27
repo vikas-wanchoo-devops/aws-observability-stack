@@ -22,7 +22,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::879696522469:role/GitHubActionsCICDRole
-          aws-region: eu-north-1   # corrected region
+          aws-region: eu-north-1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -31,10 +31,19 @@ jobs:
         run: terraform init
         working-directory: terraform
 
+      # Import existing ECS services so Terraform doesn't try to recreate them
+      - name: Terraform Import ECS Services
+        run: |
+          terraform import aws_ecs_service.prometheus arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/prometheus-service || true
+          terraform import aws_ecs_service.grafana arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/grafana-service || true
+          terraform import aws_ecs_service.kafka arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/kafka-service || true
+          terraform import aws_ecs_service.cloudwatch_exporter arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/cloudwatch-exporter-service || true
+        working-directory: terraform
+
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
         working-directory: terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
         working-directory: terraform
