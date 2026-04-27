@@ -1,36 +1,5 @@
-resource "aws_lb_target_group" "grafana" {
-  name        = "grafana-tg-ecs"   # renamed to avoid conflict
-  port        = 3000
-  protocol    = "HTTP"
-  vpc_id      = "vpc-0b5d7248bdde16ef7"
-  target_type = "ip"
-
-  health_check {
-    path                = "/login"
-    protocol            = "HTTP"
-    matcher             = "200-302"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-}
-
-resource "aws_lb_listener_rule" "grafana" {
-  listener_arn = aws_lb_listener.app.arn
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.grafana.arn
-  }
-  condition {
-    host_header {
-      values = ["grafana.assaabloy-app-alb-373654538.eu-north-1.elb.amazonaws.com"]
-    }
-  }
-}
-
 resource "aws_ecs_task_definition" "grafana" {
-  family                   = "grafana-task-ecs"   # renamed
+  family                   = "grafana-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "512"
@@ -49,7 +18,7 @@ resource "aws_ecs_task_definition" "grafana" {
 }
 
 resource "aws_ecs_service" "grafana" {
-  name            = "grafana-service-ecs"   # renamed
+  name            = "grafana-service"
   cluster         = "assaabloy-app-cluster"
   task_definition = aws_ecs_task_definition.grafana.arn
   desired_count   = 1
@@ -66,10 +35,4 @@ resource "aws_ecs_service" "grafana" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.grafana.arn
-    container_name   = "grafana"
-    container_port   = 3000
-  }
-
-  depends_on = [aws_lb_listener_rule.grafana]
-}
+    target_group_arn = "arn:aws:elasticloadbalancing:eu-north-1:87969
