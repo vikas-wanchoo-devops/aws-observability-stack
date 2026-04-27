@@ -1,8 +1,23 @@
 {
   "dashboard": {
     "id": null,
-    "title": "Sample Dashboard",
-    "panels": []
+    "title": "AWS Observability Dashboard",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "ECS CPU Utilization",
+        "targets": [
+          { "expr": "aws_ecs_cpu_utilization_average" }
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "ALB Request Count",
+        "targets": [
+          { "expr": "aws_alb_request_count_sum" }
+        ]
+      }
+    ]
   },
   "overwrite": true
 }
