@@ -1,5 +1,5 @@
 resource "aws_lb_target_group" "grafana" {
-  name        = "grafana-tg"
+  name        = "grafana-tg-ecs"   # renamed to avoid conflict
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = "vpc-0b5d7248bdde16ef7"
@@ -30,7 +30,7 @@ resource "aws_lb_listener_rule" "grafana" {
 }
 
 resource "aws_ecs_task_definition" "grafana" {
-  family                   = "grafana-task"
+  family                   = "grafana-task-ecs"   # renamed
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "512"
@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "grafana" {
 }
 
 resource "aws_ecs_service" "grafana" {
-  name            = "grafana-service"
+  name            = "grafana-service-ecs"   # renamed
   cluster         = "assaabloy-app-cluster"
   task_definition = aws_ecs_task_definition.grafana.arn
   desired_count   = 1
