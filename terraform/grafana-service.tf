@@ -5,33 +5,16 @@ resource "aws_ecs_task_definition" "grafana" {
   cpu                      = "512"
   memory                   = "1024"
 
-  container_definitions = jsonencode([
-    {
-      name      = "grafana"
-      image     = "grafana/grafana:latest"
-      essential = true
-      portMappings = [
-        { containerPort = 3000, hostPort = 3000 }
-      ]
-      environment = [
-        { name = "GF_SECURITY_ADMIN_USER", value = "admin" },
-        { name = "GF_SECURITY_ADMIN_PASSWORD", value = "admin" }
-      ]
-      mountPoints = [
-        {
-          sourceVolume  = "grafana-provisioning"
-          containerPath = "/etc/grafana/provisioning"
-        }
-      ]
-    }
-  ])
-
-  volume {
-    name = "grafana-provisioning"
-    efs_volume_configuration {
-      file_system_id = aws_efs_file_system.grafana.id
-    }
-  }
+  container_definitions = jsonencode([{
+    name      = "grafana"
+    image     = "grafana/grafana:latest"
+    essential = true
+    portMappings = [{ containerPort = 3000, hostPort = 3000 }]
+    environment = [
+      { name = "GF_SECURITY_ADMIN_USER", value = "admin" },
+      { name = "GF_SECURITY_ADMIN_PASSWORD", value = "admin" }
+    ]
+  }])
 }
 
 resource "aws_ecs_service" "grafana" {
@@ -42,8 +25,12 @@ resource "aws_ecs_service" "grafana" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = ["subnet-xxxx"]
-    security_groups = ["sg-xxxx"]
+    subnets = [
+      "subnet-0d16d36a33d1c1f22",
+      "subnet-013e51f5fbc1318cb",
+      "subnet-0a4e24f116d3364f9"
+    ]
+    security_groups = ["sg-04df50a141a12d19a"]
     assign_public_ip = true
   }
 }
