@@ -1,11 +1,10 @@
 name: Terraform Deploy
 
 on:
-  push:        # runs on every push to any branch
+  push:
     branches:
-      - main   # restrict to main branch (optional)
-  pull_request:  # also runs on PRs (optional)
-  workflow_dispatch:   # still allows manual trigger
+      - main        # runs on every push to main
+  workflow_dispatch: # still allows manual trigger
 
 jobs:
   terraform:
@@ -23,7 +22,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::879696522469:role/GitHubActionsCICDRole
-          aws-region: ap-south-1   # adjust to your AWS region
+          aws-region: ap-south-1   # adjust if needed
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -38,4 +37,4 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: terraform\
+        working-directory: terraform
