@@ -1,26 +1,5 @@
-resource "aws_lb_target_group" "prometheus" {
-  name        = "prometheus-tg-ecs"   # renamed to avoid conflict
-  port        = 9090
-  protocol    = "HTTP"
-  vpc_id      = "vpc-0b5d7248bdde16ef7"
-  target_type = "ip"
-}
-
-resource "aws_lb_listener_rule" "prometheus" {
-  listener_arn = aws_lb_listener.app.arn
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.prometheus.arn
-  }
-  condition {
-    host_header {
-      values = ["prometheus.assaabloy-app-alb-373654538.eu-north-1.elb.amazonaws.com"]
-    }
-  }
-}
-
 resource "aws_ecs_task_definition" "prometheus" {
-  family                   = "prometheus-task-ecs"   # renamed
+  family                   = "prometheus-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "512"
@@ -35,7 +14,7 @@ resource "aws_ecs_task_definition" "prometheus" {
 }
 
 resource "aws_ecs_service" "prometheus" {
-  name            = "prometheus-service-ecs"   # renamed
+  name            = "prometheus-service"
   cluster         = "assaabloy-app-cluster"
   task_definition = aws_ecs_task_definition.prometheus.arn
   desired_count   = 1
@@ -52,10 +31,8 @@ resource "aws_ecs_service" "prometheus" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.prometheus.arn
+    target_group_arn = "arn:aws:elasticloadbalancing:eu-north-1:879696522469:targetgroup/prometheus-tg-ecs/43148ae3c7075f70"
     container_name   = "prometheus"
     container_port   = 9090
   }
-
-  depends_on = [aws_lb_listener_rule.prometheus]
 }
