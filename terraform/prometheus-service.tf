@@ -1,18 +1,9 @@
 resource "aws_lb_target_group" "prometheus" {
-  name     = "prometheus-tg"
-  port     = 9090
-  protocol = "HTTP"
-  vpc_id   = "vpc-0b5d7248bdde16ef7"
+  name        = "prometheus-tg"
+  port        = 9090
+  protocol    = "HTTP"
+  vpc_id      = "vpc-0b5d7248bdde16ef7"
   target_type = "ip"
-  health_check {
-    path                = "/"
-    protocol            = "HTTP"
-    matcher             = "200"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
 }
 
 resource "aws_lb_listener_rule" "prometheus" {
