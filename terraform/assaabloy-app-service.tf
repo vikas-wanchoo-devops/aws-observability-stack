@@ -1,6 +1,4 @@
 # terraform/assaabloy-app-service.tf
-# ECS Service definition for Assa Abloy Application
-
 resource "aws_ecs_service" "app" {
   name            = "assaabloy-app-service"
   cluster         = aws_ecs_cluster.app_cluster.id
