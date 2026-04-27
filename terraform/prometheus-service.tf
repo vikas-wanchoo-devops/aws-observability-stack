@@ -1,9 +1,3 @@
-# Reference existing target group
-data "aws_lb_target_group" "prometheus" {
-  arn = "arn:aws:elasticloadbalancing:eu-north-1:879696522469:targetgroup/prometheus-tg-ecs/43148ae3c7075f70"
-}
-
-# Manage task definition
 resource "aws_ecs_task_definition" "prometheus" {
   family                   = "prometheus-task"
   network_mode             = "awsvpc"
@@ -19,8 +13,26 @@ resource "aws_ecs_task_definition" "prometheus" {
   }])
 }
 
-# Reference existing ECS service
-data "aws_ecs_service" "prometheus" {
-  cluster      = "assaabloy-app-cluster"
-  service_name = "prometheus-service"
+resource "aws_ecs_service" "prometheus" {
+  name            = "prometheus-service"
+  cluster         = "assaabloy-app-cluster"
+  task_definition = aws_ecs_task_definition.prometheus.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets = [
+      "subnet-0d16d36a33d1c1f22",
+      "subnet-013e51f5fbc1318cb",
+      "subnet-0a4e24f116d3364f9"
+    ]
+    security_groups = ["sg-04df50a141a12d19a"]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = "arn:aws:elasticloadbalancing:eu-north-1:879696522469:targetgroup/prometheus-tg-ecs/43148ae3c7075f70"
+    container_name   = "prometheus"
+    container_port   = 9090
+  }
 }
