@@ -3,11 +3,15 @@
 
 # Use existing subnets in your VPC
 data "aws_subnet" "private1" {
-  id = "subnet-0d16d36a33d1c1f22"
+  id = "subnet-0d16d36a33d1c1f22" # eu-north-1b
 }
 
 data "aws_subnet" "private2" {
-  id = "subnet-013e51f5fbc1318cb"
+  id = "subnet-013e51f5fbc1318cb" # eu-north-1c
+}
+
+data "aws_subnet" "private3" {
+  id = "subnet-0a4e24f116d3364f9" # eu-north-1a
 }
 
 # Security Group for App
