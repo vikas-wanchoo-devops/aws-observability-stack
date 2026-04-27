@@ -1,3 +1,6 @@
+# terraform/app-target-group.tf
+# Target Group for Assa Abloy Application
+
 resource "aws_lb_target_group" "app_tg" {
   name     = "assaabloy-app-tg"
   port     = 5000
