@@ -1,4 +1,4 @@
-name: Terraform Deploy
+name: Observability Stack Setup
 
 on:
   push:
@@ -7,17 +7,16 @@ on:
   workflow_dispatch:
 
 jobs:
+  # -------------------------------
+  # Stage 1: Terraform Infrastructure
+  # -------------------------------
   terraform:
     runs-on: ubuntu-latest
-
     permissions:
       id-token: write
       contents: read
 
     steps:
-      # -------------------------------
-      # Stage 1: Checkout & AWS Setup
-      # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -30,17 +29,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # -------------------------------
-      # Stage 2: Terraform Initialization
-      # -------------------------------
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
 
-      # -------------------------------
-      # Stage 3: Import Existing ECS Services
-      # (Prevents duplicate creation errors)
-      # -------------------------------
       - name: Terraform Import ECS Services
         run: |
           terraform import aws_ecs_service.prometheus arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/prometheus-service || true
@@ -49,16 +41,30 @@ jobs:
           terraform import aws_ecs_service.cloudwatch_exporter arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/cloudwatch-exporter-service || true
         working-directory: terraform
 
-      # -------------------------------
-      # Stage 4: Terraform Plan
-      # -------------------------------
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         working-directory: terraform
 
-      # -------------------------------
-      # Stage 5: Terraform Apply
-      # -------------------------------
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
         working-directory: terraform
+
+  # -------------------------------
+  # Stage 2: Observability Setup
+  # -------------------------------
+  observability:
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::879696522469:role/GitHubActionsCICDRole
+          aws-region: eu-north-1
+
+      - name: Refresh ECS Services (Prometheus, Grafana, Kafka, CloudWatch Exporter)
+        run: |
+          aws ecs update-service --cluster assaabloy-app-cluster --service prometheus-service --force-new-deployment
+          aws ecs update-service --cluster assaabloy-app-cluster --service grafana-service --force-new-deployment
+          aws ecs update-service --cluster assaabloy-app-cluster --service kafka-service --force-new-deployment
+          aws ecs update-service --cluster assaabloy-app-cluster --service cloudwatch-exporter-service --force-new-deployment
