@@ -15,8 +15,8 @@ resource "aws_iam_role_policy_attachment" "prometheus_ec2" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
-# Attach ViewOnlyAccess (covers ECS read-only)
-resource "aws_iam_role_policy_attachment" "prometheus_viewonly" {
+# Attach ReadOnlyAccess (covers ECS and other services)
+resource "aws_iam_role_policy_attachment" "prometheus_readonly" {
   role       = data.aws_iam_role.prometheus_role.name
-  policy_arn = "arn:aws:iam::aws:policy/ViewOnlyAccess"
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
