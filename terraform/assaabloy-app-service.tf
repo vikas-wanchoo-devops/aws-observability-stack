@@ -4,7 +4,7 @@
 resource "aws_ecs_service" "app" {
   name            = "assaabloy-app-service"
   cluster         = aws_ecs_cluster.app_cluster.id
-  task_definition = aws_ecs_task_definition.app.arn
+  task_definition = aws_ecs_task_definition.assaabloy_app_task.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
@@ -17,7 +17,7 @@ resource "aws_ecs_service" "app" {
   load_balancer {
     target_group_arn = aws_lb_target_group.app_tg.arn
     container_name   = "assaabloy-app"
-    container_port   = 8080
+    container_port   = 5000
   }
 
   deployment_controller {
