@@ -15,7 +15,10 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout repo
+      # -------------------------------
+      # Stage 1: Checkout & AWS Setup
+      # -------------------------------
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials via OIDC
@@ -27,11 +30,17 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      # -------------------------------
+      # Stage 2: Terraform Initialization
+      # -------------------------------
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
 
-      # Import existing ECS services so Terraform doesn't try to recreate them
+      # -------------------------------
+      # Stage 3: Import Existing ECS Services
+      # (Prevents duplicate creation errors)
+      # -------------------------------
       - name: Terraform Import ECS Services
         run: |
           terraform import aws_ecs_service.prometheus arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/prometheus-service || true
@@ -40,10 +49,16 @@ jobs:
           terraform import aws_ecs_service.cloudwatch_exporter arn:aws:ecs:eu-north-1:879696522469:service/assaabloy-app-cluster/cloudwatch-exporter-service || true
         working-directory: terraform
 
+      # -------------------------------
+      # Stage 4: Terraform Plan
+      # -------------------------------
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         working-directory: terraform
 
+      # -------------------------------
+      # Stage 5: Terraform Apply
+      # -------------------------------
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
         working-directory: terraform
