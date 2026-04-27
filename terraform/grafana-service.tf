@@ -1,9 +1,10 @@
 resource "aws_lb_target_group" "grafana" {
-  name     = "grafana-tg"
-  port     = 3000
-  protocol = "HTTP"
-  vpc_id   = "vpc-0b5d7248bdde16ef7"
+  name        = "grafana-tg"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = "vpc-0b5d7248bdde16ef7"
   target_type = "ip"
+
   health_check {
     path                = "/login"
     protocol            = "HTTP"
