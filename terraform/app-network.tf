@@ -1,11 +1,16 @@
-resource "aws_subnet" "private1" {
-  # define your first private subnet here
+# terraform/app-network.tf
+# Networking resources for Assa Abloy Application
+
+# Use existing subnets in your VPC
+data "aws_subnet" "private1" {
+  id = "subnet-0d16d36a33d1c1f22"
 }
 
-resource "aws_subnet" "private2" {
-  # define your second private subnet here
+data "aws_subnet" "private2" {
+  id = "subnet-013e51f5fbc1318cb"
 }
 
+# Security Group for App
 resource "aws_security_group" "app_sg" {
   name        = "assaabloy-app-sg"
   description = "Security group for Assa Abloy App"
