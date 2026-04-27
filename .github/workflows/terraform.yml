@@ -1,4 +1,3 @@
-# .github/workflows/observability.yml
 name: Observability Stack Setup
 
 on:
@@ -34,13 +33,13 @@ jobs:
         run: terraform init
         working-directory: terraform
 
-      # Correct import format: cluster-name/service-name
+      # Import ECS Services into Terraform state
       - name: Terraform Import ECS Services
         run: |
           terraform import aws_ecs_service.prometheus assaabloy-app-cluster/prometheus-service
           terraform import aws_ecs_service.grafana assaabloy-app-cluster/grafana-service
           terraform import aws_ecs_service.cloudwatch_exporter assaabloy-app-cluster/cloudwatch-exporter-service
-          terraform import aws_ecs_service.assaabloy_app assaabloy-app-cluster/assaabloy-app-service
+          terraform import aws_ecs_service.app assaabloy-app-cluster/assaabloy-app-service
         working-directory: terraform
 
       - name: Terraform Plan
@@ -69,4 +68,4 @@ jobs:
           aws ecs update-service --cluster assaabloy-app-cluster --service prometheus-service --force-new-deployment
           aws ecs update-service --cluster assaabloy-app-cluster --service grafana-service --force-new-deployment
           aws ecs update-service --cluster assaabloy-app-cluster --service cloudwatch-exporter-service --force-new-deployment
-          aws ecs update-service --cluster assaabloy-app-cluster --service assabloy-app-service --force-new-deployment
+          aws ecs update-service --cluster assaabloy-app-cluster --service assaabloy-app-service --force-new-deployment
