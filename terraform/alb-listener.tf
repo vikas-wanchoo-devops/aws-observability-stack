@@ -3,7 +3,7 @@ variable "create_listener" {
   default = false
 }
 
-# Try to read existing listener
+# Read existing listener if already created
 data "aws_lb_listener" "app" {
   count = var.create_listener ? 0 : 1
   arn   = "arn:aws:elasticloadbalancing:eu-north-1:879696522469:listener/app/assaabloy-app-alb/6f2878a5c4470aa5/1bba9a3cfb100633"
