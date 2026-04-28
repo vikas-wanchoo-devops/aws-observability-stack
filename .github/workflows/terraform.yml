@@ -33,14 +33,30 @@ jobs:
         run: terraform init
         working-directory: terraform
 
+      # ---------------------------------------------------------
       # Import ECS Services into Terraform state
-      - name: Terraform Import ECS Services
-        run: |
-          terraform import aws_ecs_service.prometheus assaabloy-app-cluster/prometheus-service
-          terraform import aws_ecs_service.grafana assaabloy-app-cluster/grafana-service
-          terraform import aws_ecs_service.cloudwatch_exporter assaabloy-app-cluster/cloudwatch-exporter-service
-          terraform import aws_ecs_service.app assaabloy-app-cluster/assaabloy-app-service
-        working-directory: terraform
+      # ---------------------------------------------------------
+      # NOTE: These imports are commented out because they are
+      # one-time operations. Running them on every CI/CD run
+      # causes hangs and errors. Keep them here for reference.
+      #
+      # If you ever need to re-import services manually:
+      #   terraform -chdir=terraform import aws_ecs_service.prometheus assaabloy-app-cluster/prometheus-service
+      #   terraform -chdir=terraform import aws_ecs_service.grafana assaabloy-app-cluster/grafana-service
+      #   terraform -chdir=terraform import aws_ecs_service.cloudwatch_exporter assaabloy-app-cluster/cloudwatch-exporter-service
+      #   terraform -chdir=terraform import aws_ecs_service.kafka assaabloy-app-cluster/kafka-service
+      #
+      # DO NOT include the app service here — it is owned by
+      # the infra repo and protected with prevent_destroy.
+      #
+      # - name: Terraform Import ECS Services
+      #   run: |
+      #     terraform import aws_ecs_service.prometheus assaabloy-app-cluster/prometheus-service
+      #     terraform import aws_ecs_service.grafana assaabloy-app-cluster/grafana-service
+      #     terraform import aws_ecs_service.cloudwatch_exporter assaabloy-app-cluster/cloudwatch-exporter-service
+      #     terraform import aws_ecs_service.kafka assaabloy-app-cluster/kafka-service
+      #   working-directory: terraform
+      # ---------------------------------------------------------
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
@@ -63,9 +79,8 @@ jobs:
           role-to-assume: arn:aws:iam::879696522469:role/GitHubActionsCICDRole
           aws-region: eu-north-1
 
-      - name: Refresh ECS Services (Prometheus, Grafana, CloudWatch Exporter, App)
+      - name: Refresh ECS Services (Prometheus, Grafana, CloudWatch Exporter)
         run: |
           aws ecs update-service --cluster assaabloy-app-cluster --service prometheus-service --force-new-deployment
           aws ecs update-service --cluster assaabloy-app-cluster --service grafana-service --force-new-deployment
           aws ecs update-service --cluster assaabloy-app-cluster --service cloudwatch-exporter-service --force-new-deployment
-          aws ecs update-service --cluster assaabloy-app-cluster --service assaabloy-app-service --force-new-deployment
