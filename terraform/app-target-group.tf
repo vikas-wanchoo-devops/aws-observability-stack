@@ -8,7 +8,7 @@ resource "aws_lb_target_group" "app_tg" {
   vpc_id   = var.vpc_id
 
   health_check {
-    path                = "/"
+    path                = "/health"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
